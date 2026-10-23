@@ -1,0 +1,105 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  USER
+}
+
+enum UserStatus {
+  ACTIVE
+  LOCKED
+  DISABLED
+}
+
+model User {
+  id              String    @id @default(uuid())
+  username        String    @unique
+  email           String    @unique
+  passwordHash    String
+  tokenVersion    Int       @default(0)
+  emailVerifiedAt DateTime?
+
+  fullName  String?
+  avatarUrl String?
+
+  role   Role       @default(USER)
+  status UserStatus @default(ACTIVE)
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deletedAt DateTime?
+
+  refreshTokens     RefreshToken[]
+  emailVerification EmailVerification?
+  passwordReset     PasswordReset?
+
+  @@index([status])
+}
+
+model EmailVerification {
+  userId    String   @id
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+
+  @@index([expiresAt])
+}
+
+model RateLimit {
+  key          String    @id
+  hits         Int
+  expiresAt    DateTime
+  blockedUntil DateTime?
+
+  @@index([expiresAt])
+}
+
+model RefreshToken {
+  id String @id @default(uuid())
+
+  sessionId         String   @unique @default(uuid())
+  tokenVersion      Int
+  absoluteExpiresAt DateTime
+  tokenId           String   @unique
+  tokenHash         String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+  @@index([userId, createdAt])
+}
+
+model UsedRefreshToken {
+  tokenId   String   @id
+  tokenHash String
+  sessionId String
+  expiresAt DateTime
+
+  @@index([expiresAt])
+}
+
+model PasswordReset {
+  userId       String   @id
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash    String   @unique
+  expiresAt    DateTime
+  tokenVersion Int
+
+  @@index([expiresAt])
+}

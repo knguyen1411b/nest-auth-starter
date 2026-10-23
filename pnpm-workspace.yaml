@@ -1,0 +1,13 @@
+allowBuilds:
+    '@nestjs/core': true
+    '@prisma/engines': true
+    '@scarf/scarf': false
+    bcrypt: true
+    prisma: true
+minimumReleaseAgeExclude:
+    - nodemailer@10.2.1
+
+overrides:
+    fastify: ^5.12.7
+    js-yaml@5: ^5.4.1
+    webpack: ^5.112.0
