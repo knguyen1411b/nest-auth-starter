@@ -24,7 +24,7 @@ jobs:
             TEST_DATABASE_URL: postgresql://nest_test:nest_test@127.0.0.1:5432/nest_auth_starter_test
         steps:
             - uses: actions/checkout@v4
-            - uses: pnpm/action-setup@v4
+            - uses: pnpm/action-setup@v6
             - uses: actions/setup-node@v4
               with:
                   node-version: '22'
